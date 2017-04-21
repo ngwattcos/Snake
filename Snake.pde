@@ -26,6 +26,7 @@ int frameNum = 0;
 
 int updateFrame = 10;	// 3 times per second
 
+boolean changedDirection = false;
 boolean alive = true;
 
 // we use ArrayList because our snake needs to grow!
@@ -33,6 +34,8 @@ ArrayList<int[]> snake = new ArrayList<int[]>();
 
 ///////////////////
 // Part B
+// this is the main game loop that is called
+// 30 frames per second
 void draw() {
 	if (frameNum == 0) {
 		snake.add(new int[] {positionX, positionY});
@@ -41,7 +44,7 @@ void draw() {
 	///////////////////
 	// Part C
 	// deal with keyboard input
-	if (keyPressed) {
+	if (keyPressed && !changedDirection) {
 		if (keyCode == UP && direction != "down") {
 			direction = "up";
 		}
@@ -54,6 +57,8 @@ void draw() {
 		if (keyCode == RIGHT && direction != "left") {
 			direction = "right";
 		}
+
+		changedDirection = true;
 	}
 
 	///////////////////
@@ -80,7 +85,8 @@ void draw() {
 	// Part E
 	// update loop that runs every 10 frames
 	if (frameNum % updateFrame == 0 && alive) {
-		
+		changedDirection = false;
+
 		//////////////////////////////////
 		////// Snake Movement
 		if (alive) {
@@ -120,7 +126,7 @@ void draw() {
 			///////// Eat
 			// check if has "eaten" food
 			if (snake.get(0)[0] == foodX && snake.get(0)[1] == foodY) {
-				// grow the snake body at 0, 0
+				// grow the snake body; add a segment at -1, -1
 				snake.add(new int[] {-1, -1});
 				// create new small food
 				foodX = round(random(0, maxTilePosX - 1));
@@ -131,9 +137,10 @@ void draw() {
 			// Part H
 			// do not eat thyself!
 			for (int i = 1; i < snake.size(); i++) {
+				// if the head is the same coordinate as any one of the body parts
 				if (snake.get(0)[0] == snake.get(i)[0] && snake.get(0)[1] == snake.get(i)[1]) {
+					// snake causes an ouroboros, you get a domain error, and you die
 					alive = false;
-					break;
 				}
 			}
 		}
@@ -168,20 +175,31 @@ void draw() {
 		textSize(30);
 		textAlign(CENTER);
 		text("Yer DIED", 450, 250);
-		text("Press Enter To Restart", 450, 300);
-		if (key == ENTER) {
-			// reset snake
+		text("Click To Restart", 450, 300);
+		if (mousePressed) {
+			// reset snake, food
 			snake.clear();
 			snake.add(new int[] {3, 5});
 			direction = "right";
 			foodX = round(random(0, maxTilePosX - 1));
 			foodY = round(random(0, maxTilePosY - 1));
+			alive = true;
 		}
 
-		alive = true;
+		
 	}
+
+	textAlign(LEFT);
+
+	///////////////////////////////
+	// Part K
+	// Add code for score here
+	textSize(15);
+	fill(0, 0, 0);
+	text("score: " + (snake.size() - 1), 20, 30);
 	
 	////////////////////////////////
-	// Part K
+	// Part L
+	// increment the framerate
 	frameNum = frameNum + 1;
 }
